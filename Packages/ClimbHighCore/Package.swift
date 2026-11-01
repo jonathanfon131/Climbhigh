@@ -1,0 +1,20 @@
+// swift-tools-version: 6.0
+//
+// ClimbHighCore holds every rule the app follows — when reminders fire, how
+// rest timers count, how voice commands are understood — as plain Swift with
+// no UI or Apple-only frameworks. That keeps the "brain" of the app small,
+// readable, and fully covered by fast unit tests.
+
+import PackageDescription
+
+let package = Package(
+    name: "ClimbHighCore",
+    platforms: [.iOS(.v18), .macOS(.v15)],
+    products: [
+        .library(name: "ClimbHighCore", targets: ["ClimbHighCore"])
+    ],
+    targets: [
+        .target(name: "ClimbHighCore"),
+        .testTarget(name: "ClimbHighCoreTests", dependencies: ["ClimbHighCore"])
+    ]
+)

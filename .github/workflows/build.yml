@@ -1,0 +1,82 @@
+# Builds Climb High on GitHub's Mac machines, because iPhone apps can only be
+# compiled on macOS. Two jobs run side by side:
+#   1. core-tests — runs every unit test for the app's logic (ClimbHighCore).
+#   2. app        — compiles the iPhone app and widget, then packages an
+#                   unsigned ClimbHigh.ipa you download from the run's
+#                   "Artifacts" section and install with Sideloadly
+#                   (see docs/INSTALL-WINDOWS.md).
+
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-tests:
+    name: Core logic tests
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use the newest stable Xcode 26
+        run: ./scripts/select-xcode.sh
+
+      - name: Run unit tests
+        run: swift test --package-path Packages/ClimbHighCore
+
+  app:
+    name: Build iPhone app (.ipa)
+    runs-on: macos-26
+    timeout-minutes: 40
+    if: ${{ hashFiles('project.yml') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use the newest stable Xcode 26
+        run: ./scripts/select-xcode.sh
+
+      - name: Generate the Xcode project from project.yml
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Compile (unsigned — Sideloadly signs it with your Apple ID)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project ClimbHigh.xcodeproj \
+            -scheme ClimbHigh \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee build.log | grep -E "error:|warning: .*ClimbHigh|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" build.log
+
+      - name: Show compiler errors
+        if: failure()
+        run: grep -E -B2 -A6 "error:" build.log | head -300 || true
+
+      - name: Package ClimbHigh.ipa
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/ClimbHigh.app Payload/
+          zip -qry ClimbHigh.ipa Payload
+          ls -lh ClimbHigh.ipa
+
+      - name: Upload ClimbHigh.ipa
+        uses: actions/upload-artifact@v4
+        with:
+          name: ClimbHigh-ipa
+          path: ClimbHigh.ipa
+          retention-days: 30
