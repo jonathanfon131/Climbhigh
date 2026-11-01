@@ -36,7 +36,6 @@ jobs:
     name: Build iPhone app (.ipa)
     runs-on: macos-26
     timeout-minutes: 40
-    if: ${{ hashFiles('project.yml') != '' }}
     steps:
       - uses: actions/checkout@v4
 
