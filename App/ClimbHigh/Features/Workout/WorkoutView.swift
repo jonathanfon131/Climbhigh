@@ -101,7 +101,6 @@ struct WorkoutView: View {
                 IntensityTile(intensity: intensity, seconds: settings.settings.restPresets.seconds(for: intensity)) {
                     workout.finishSet(intensity, details: showDetails ? details : .init())
                     details.repsText = ""
-
                 }
             }
             DisclosureGroup(isExpanded: $showDetails) {
