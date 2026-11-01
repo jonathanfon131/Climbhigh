@@ -1,0 +1,99 @@
+# XcodeGen spec — the single source of truth for the Xcode project.
+# Run `xcodegen generate` (CI does this) to produce ClimbHigh.xcodeproj.
+# Editing this small file instead of a giant .xcodeproj keeps changes reviewable.
+
+name: ClimbHigh
+
+options:
+  bundleIdPrefix: com.jonathanfon
+  deploymentTarget:
+    iOS: "26.1"
+  developmentLanguage: en
+  createIntermediateGroups: true
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+
+packages:
+  ClimbHighCore:
+    path: Packages/ClimbHighCore
+
+targets:
+  ClimbHigh:
+    type: application
+    platform: iOS
+    sources:
+      - path: App/ClimbHigh
+      - path: App/Shared
+    dependencies:
+      - package: ClimbHighCore
+      - target: ClimbHighWidgets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jonathanfon.climbhigh
+        PRODUCT_NAME: ClimbHigh
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    info:
+      path: App/ClimbHigh/Info.plist
+      properties:
+        CFBundleDisplayName: Climb High
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIApplicationSupportsIndirectInputEvents: true
+        ITSAppUsesNonExemptEncryption: false
+        # Permissions — each string is what iOS shows when asking.
+        NSAlarmKitUsageDescription: Climb High rings an alarm when your rest is over and when a reminder is due.
+        NSMicrophoneUsageDescription: Climb High listens when you tap the mic so you can speak reminders and notes.
+        NSSpeechRecognitionUsageDescription: Climb High turns what you say into reminders and notes, on your iPhone.
+        # Lock Screen / Dynamic Island countdowns
+        NSSupportsLiveActivities: true
+        # Lets the app refresh reminder alerts in the background
+        UIBackgroundModes:
+          - fetch
+        BGTaskSchedulerPermittedIdentifiers:
+          - com.jonathanfon.climbhigh.refresh
+        # climbhigh:// links (used to come back from the Focus shortcut)
+        CFBundleURLTypes:
+          - CFBundleURLName: com.jonathanfon.climbhigh
+            CFBundleURLSchemes:
+              - climbhigh
+        LSApplicationQueriesSchemes:
+          - shortcuts
+
+  ClimbHighWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: App/ClimbHighWidgets
+      - path: App/Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jonathanfon.climbhigh.widgets
+        PRODUCT_NAME: ClimbHighWidgets
+        SKIP_INSTALL: YES
+    info:
+      path: App/ClimbHighWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Climb High Timer
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+
+schemes:
+  ClimbHigh:
+    build:
+      targets:
+        ClimbHigh: all
+    run:
+      config: Debug
+    archive:
+      config: Release
