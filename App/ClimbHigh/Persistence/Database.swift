@@ -25,6 +25,12 @@ enum Database {
     }
 
     static func open() -> Opened {
+        if DemoMode.isOn {
+            // Screenshot preview: throwaway data that never touches the real database.
+            // swiftlint:disable:next force_try
+            let memory = try! ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true))
+            return Opened(container: memory, warning: nil)
+        }
         do {
             let container = try ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema))
             return Opened(container: container, warning: nil)

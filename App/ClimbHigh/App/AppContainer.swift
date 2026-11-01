@@ -55,6 +55,7 @@ final class AppContainer {
                                     notifications: notifications, haptics: haptics, focus: focus)
         assistant = AssistantController(reminders: reminders, notes: notes, workout: workout, settings: settings)
         backup = BackupService(context: context, settings: settings, faith: faith)
+        if DemoMode.isOn { DemoMode.seed(self) }
     }
 
     // MARK: App lifecycle

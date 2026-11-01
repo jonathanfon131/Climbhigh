@@ -6,7 +6,7 @@ enum AppTab: Hashable {
 
 /// The five tabs. Each tab owns its own navigation stack.
 struct RootView: View {
-    @State private var selection: AppTab = .today
+    @State private var selection: AppTab = DemoMode.initialTab
     @Environment(WorkoutController.self) private var workout
     @Environment(FaithStore.self) private var faith
 

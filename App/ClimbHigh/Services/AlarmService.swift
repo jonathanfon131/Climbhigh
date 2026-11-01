@@ -32,6 +32,7 @@ final class AlarmService {
     /// Asks once; afterwards returns the saved answer.
     @discardableResult
     func requestAuthorization() async -> Bool {
+        if DemoMode.isOn { return true }
         switch manager.authorizationState {
         case .authorized: return true
         case .denied: return false
@@ -48,6 +49,7 @@ final class AlarmService {
     // MARK: Rest timer
 
     func startRestTimer(id: UUID, seconds: TimeInterval, intensity: SetIntensity) async throws {
+        if DemoMode.isOn { return }
         let alert = AlarmPresentation.Alert(
             title: LocalizedStringResource(stringLiteral: "Rest's up — \(intensity.title.lowercased()) set"),
             secondaryButton: AlarmButton(text: "Start set", textColor: SharedPalette.ink, systemImageName: "figure.strengthtraining.traditional"),
@@ -83,6 +85,7 @@ final class AlarmService {
     /// Makes the set of scheduled reminder alarms match `alerts` exactly:
     /// cancels ones no longer wanted, adds new ones, leaves unchanged ones alone.
     func replaceReminderAlarms(_ alerts: [PlannedAlert], titles: [UUID: String]) async {
+        if DemoMode.isOn { return }
         let wanted = Array(alerts.prefix(Self.maxReminderAlarms))
         var wantedIDs: [UUID: PlannedAlert] = [:]
         for alert in wanted {

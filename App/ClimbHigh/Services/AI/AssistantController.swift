@@ -120,6 +120,18 @@ final class AssistantController {
         undoneActionIDs.insert(action.id)
     }
 
+    /// Sample chat for screenshots (DemoMode only).
+    func seedDemoConversation() {
+        messages = [
+            Message(role: .user, text: "Remind me to send the lawn quotes tomorrow at 9"),
+            Message(role: .assistant, text: "Done — I'll remind you: Send the lawn quotes, tomorrow at 9:00 AM.",
+                    actions: [.reminder(id: UUID(), title: "Send the lawn quotes",
+                                        due: Calendar.current.date(byAdding: .day, value: 1, to: .now) ?? .now)]),
+            Message(role: .user, text: "What's coming up?"),
+            Message(role: .assistant, text: upcomingSummary(limit: 3))
+        ]
+    }
+
     // MARK: AI
 
     private func askAI(_ text: String) async {

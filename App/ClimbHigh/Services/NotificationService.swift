@@ -69,6 +69,7 @@ final class NotificationService {
 
     @discardableResult
     func requestAuthorization() async -> Bool {
+        if DemoMode.isOn { return true }
         (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
     }
 
@@ -198,6 +199,7 @@ final class NotificationService {
     }
 
     private func add(_ request: UNNotificationRequest) async {
+        if DemoMode.isOn { return }
         do {
             try await center.add(request)
         } catch {
