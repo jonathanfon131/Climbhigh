@@ -68,6 +68,19 @@ mic ─▶ SpeechService (on-device) ─▶ AssistantController.send(text)
 ### Notes AI
 `NoteAIService.review` asks the on-device model for a `NoteReview`: opinion, issues, additions, next steps, questions, and an improved version. `@Generable` means the model fills in exactly those typed fields. **Discuss** opens a chat about the note, and **Make plan** turns that chat into steps you can add to the note.
 
+### Daily verse and streaks
+```
+scripts/build_daily_verses.py ─▶ daily-verses.json (414 verses, exact BSB text)
+VerseLibrary (Core): day → verse (same all day, next one tomorrow, wraps after the list)
+"I read it" (card or notification button) ─▶ FaithStore.markTodayRead ─▶ VerseRead row
+ReadingStreak (Core): current / best / total from the set of read days
+FaithStore.refreshReminders ─▶ next 7 mornings' notifications, each with that day's verse
+```
+The streak survives until midnight: if you haven't read today yet, yesterday's streak still counts.
+
+### Pip (the assistant's character)
+`DesignSystem/PipView.swift` draws Pip from plain shapes and animates from the clock (`TimelineView`). It has five moods: idle, thinking, listening, happy and sleepy. Screens choose the mood from state (mic on → listening, AI working → thinking, just did something → happy, AI off → sleepy). Reduce Motion freezes it.
+
 ## Decisions (and why)
 
 | Decision | Why |
@@ -80,6 +93,7 @@ mic ─▶ SpeechService (on-device) ─▶ AssistantController.send(text)
 | Schedules stored as JSON inside SwiftData | Same format as backups, versionable, readable, and tolerant of new fields. |
 | XcodeGen `project.yml` | A 100-line readable file instead of a huge generated project file. Builds reproducibly in CI without a Mac. |
 | App in Swift 5 mode, Core in Swift 6 strict mode | Core is pure value types, so strict concurrency is free there. The app talks to older callback-based Apple APIs; isolation is still explicit (`@MainActor` stores, `nonisolated` callbacks). |
+| Bundled Berean Standard Bible text | Public domain, so it can ship in the app. Modern English. The wording is generated from the publisher's files, never typed by hand. Works offline. |
 | Data on the phone only + JSON backups | No account or server to secure or pay for. Backups to Files/iCloud Drive cover phone changes. |
 
 ## Adding a feature (checklist)

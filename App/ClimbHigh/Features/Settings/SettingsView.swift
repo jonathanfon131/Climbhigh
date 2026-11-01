@@ -8,6 +8,7 @@ struct SettingsView: View {
     @Environment(SettingsStore.self) private var settings
     @Environment(BackupService.self) private var backup
     @Environment(ReminderStore.self) private var reminders
+    @Environment(FaithStore.self) private var faith
     @Environment(\.storageWarning) private var storageWarning
 
     @State private var exportFile: BackupFile?
@@ -21,6 +22,7 @@ struct SettingsView: View {
                 Section { NoticeBanner(text: storageWarning, systemImage: "exclamationmark.triangle.fill", color: Palette.coral) }
             }
 
+            verseSection
             workoutSection
             reminderDefaultsSection
             focusSection
@@ -57,6 +59,29 @@ struct SettingsView: View {
     ]
 
     // MARK: Sections
+
+    private var verseSection: some View {
+        Section {
+            Toggle("Morning verse notification", isOn: settings.binding(\.verseReminderEnabled))
+            if settings.settings.verseReminderEnabled {
+                DatePicker(
+                    "Time",
+                    selection: Binding(
+                        get: { settings.settings.verseReminderTime.on(.now, calendar: .current) ?? .now },
+                        set: { newValue in settings.update { $0.verseReminderTime = TimeOfDay(of: newValue, calendar: .current) } }
+                    ),
+                    displayedComponents: .hourAndMinute
+                )
+            }
+            LabeledContent("Current streak", value: "\(faith.streak.current) days")
+        } header: {
+            Text("Daily verse")
+        } footer: {
+            Text("Shows that day's verse. Tap “I read it” on the notification to keep your streak without opening the app. Berean Standard Bible (public domain).")
+        }
+        .onChange(of: settings.settings.verseReminderEnabled) { faith.refreshReminders() }
+        .onChange(of: settings.settings.verseReminderTime) { faith.refreshReminders() }
+    }
 
     private var workoutSection: some View {
         Section {

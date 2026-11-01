@@ -1,13 +1,22 @@
 import ClimbHighCore
 import SwiftUI
 
-/// Chat with the on-device assistant. Tap the mic and speak, or type.
+/// Chat with Pip, the on-device assistant. Tap the mic and speak, or type.
 struct AssistantView: View {
     @Environment(AssistantController.self) private var assistant
     @Environment(SpeechService.self) private var speech
     @State private var input = ""
     @State private var speechError: String?
+    @State private var celebrating = false
     @FocusState private var inputFocused: Bool
+
+    /// Pip's face follows what's happening.
+    private var pipMood: PipMood {
+        if speech.isListening { return .listening }
+        if assistant.isThinking { return .thinking }
+        if celebrating { return .happy }
+        return assistant.aiStatus.isReady ? .idle : .sleepy
+    }
 
     private let suggestions = [
         "Remind me to call Mom tomorrow at 5pm",
@@ -21,7 +30,7 @@ struct AssistantView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {
-                        BigTitle(text: "Assistant", eyebrow: assistant.aiStatus.isReady ? "On-device AI · private" : "Voice commands")
+                        PipHeader(mood: pipMood, isReady: assistant.aiStatus.isReady)
                             .padding(.bottom, 4)
 
                         if !assistant.aiStatus.isReady {
@@ -55,8 +64,9 @@ struct AssistantView: View {
                 }
                 .scrollDismissesKeyboard(.interactively)
                 .onChange(of: assistant.messages.count) {
-                    guard let lastID = assistant.messages.last?.id else { return }
-                    withAnimation { proxy.scrollTo(lastID, anchor: .bottom) }
+                    guard let last = assistant.messages.last else { return }
+                    withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
+                    if last.role == .assistant, !last.actions.isEmpty { celebrate() }
                 }
             }
 
@@ -109,6 +119,15 @@ struct AssistantView: View {
         }
     }
 
+    /// Pip does a happy bounce for a couple of seconds after doing something for you.
+    private func celebrate() {
+        celebrating = true
+        Task {
+            try? await Task.sleep(for: .seconds(2.4))
+            celebrating = false
+        }
+    }
+
     private func send() {
         let text = input
         input = ""
@@ -129,6 +148,41 @@ struct AssistantView: View {
                     speechError = error.localizedDescription
                 }
             }
+        }
+    }
+}
+
+/// Big Pip + greeting at the top of the chat.
+private struct PipHeader: View {
+    let mood: PipMood
+    let isReady: Bool
+
+    var body: some View {
+        HStack(spacing: 14) {
+            PipView(mood: mood, size: 64)
+                .frame(width: 96, height: 96)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Hi, I'm Pip.")
+                    .font(.system(.largeTitle, weight: .heavy))
+                    .foregroundStyle(Palette.textPrimary)
+                Text(statusLine)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Palette.textSecondary)
+                    .contentTransition(.opacity)
+                    .animation(.easeInOut(duration: 0.2), value: mood)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
+    }
+
+    private var statusLine: String {
+        switch mood {
+        case .listening: "Listening…"
+        case .thinking: "Thinking…"
+        case .happy: "Done!"
+        case .sleepy: "Napping — voice commands still work"
+        case .idle: isReady ? "Your private, on-device helper" : "Voice commands ready"
         }
     }
 }

@@ -16,16 +16,21 @@ final class BackupService {
         let reminders: Int
         let notes: Int
         let workouts: Int
+        let verseDays: Int
 
-        var summary: String { "Restored \(reminders) reminders, \(notes) notes and \(workouts) workouts." }
+        var summary: String {
+            "Restored \(reminders) reminders, \(notes) notes, \(workouts) workouts and \(verseDays) verse days."
+        }
     }
 
     private let context: ModelContext
     private let settings: SettingsStore
+    private let faith: FaithStore
 
-    init(context: ModelContext, settings: SettingsStore) {
+    init(context: ModelContext, settings: SettingsStore, faith: FaithStore) {
         self.context = context
         self.settings = settings
+        self.faith = faith
     }
 
     func makeBackup() throws -> BackupFile {
@@ -45,7 +50,8 @@ final class BackupService {
             },
             workouts: sessions.map {
                 WorkoutRecord(id: $0.id, startedAt: $0.startedAt, endedAt: $0.endedAt, sets: $0.orderedSets.map(\.logged))
-            }
+            },
+            verseDays: faith.readDays.map(\.description)
         )
         return BackupFile(data: try document.encoded())
     }
@@ -96,7 +102,9 @@ final class BackupService {
         }
 
         try context.save()
-        return ImportResult(reminders: document.reminders.count, notes: document.notes.count, workouts: addedWorkouts)
+        faith.importReadDays(document.verseDays)
+        return ImportResult(reminders: document.reminders.count, notes: document.notes.count,
+                            workouts: addedWorkouts, verseDays: document.verseDays.count)
     }
 
     static func suggestedFileName(date: Date = .now) -> String {

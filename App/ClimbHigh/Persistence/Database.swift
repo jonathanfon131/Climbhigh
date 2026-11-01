@@ -14,7 +14,8 @@ enum Database {
         Note.self,
         NoteRevision.self,
         WorkoutSession.self,
-        WorkoutSetEntry.self
+        WorkoutSetEntry.self,
+        VerseRead.self
     ])
 
     struct Opened {
@@ -45,4 +46,5 @@ enum Log {
     static let alerts = Logger(subsystem: "com.jonathanfon.climbhigh", category: "alerts")
     static let workout = Logger(subsystem: "com.jonathanfon.climbhigh", category: "workout")
     static let ai = Logger(subsystem: "com.jonathanfon.climbhigh", category: "ai")
+    static let faith = Logger(subsystem: "com.jonathanfon.climbhigh", category: "faith")
 }

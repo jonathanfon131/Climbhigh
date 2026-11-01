@@ -16,7 +16,8 @@ struct StorageFormatTests {
             settings: AppSettings(restAlertStyle: .buzz),
             reminders: [ReminderRecord(id: UUID(), title: "Dentist", details: "Bring card", createdAt: Fixture.now, schedule: schedule, completedOccurrences: [Fixture.date(2026, 11, 4, 15)], isArchived: false)],
             notes: [NoteRecord(id: UUID(), title: "Ideas", content: "Lawn plan", createdAt: Fixture.now, updatedAt: Fixture.now, isPinned: true)],
-            workouts: [WorkoutRecord(id: UUID(), startedAt: Fixture.now, endedAt: nil, sets: [LoggedSet(intensity: .heavy, completedAt: Fixture.now, plannedRestSeconds: 180)])]
+            workouts: [WorkoutRecord(id: UUID(), startedAt: Fixture.now, endedAt: nil, sets: [LoggedSet(intensity: .heavy, completedAt: Fixture.now, plannedRestSeconds: 180)])],
+            verseDays: ["2026-11-01", "2026-10-31"]
         )
         let decoded = try BackupDocument.decode(try document.encoded())
         #expect(decoded == document)
@@ -29,6 +30,13 @@ struct StorageFormatTests {
         #expect(throws: BackupDocument.BackupError.newerVersion(99)) {
             try BackupDocument.decode(data)
         }
+    }
+
+    @Test func backupsFromBeforeVerseStreaksStillLoad() throws {
+        let old = Data(#"{"version":1,"exportedAt":"2026-11-01T21:00:00Z","settings":{},"reminders":[],"notes":[],"workouts":[]}"#.utf8)
+        let document = try BackupDocument.decode(old)
+        #expect(document.verseDays.isEmpty)
+        #expect(document.settings.verseReminderTime == TimeOfDay(hour: 7))
     }
 
     @Test func oldSettingsStillLoad() throws {

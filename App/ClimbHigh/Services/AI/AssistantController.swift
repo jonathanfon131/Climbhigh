@@ -3,7 +3,7 @@ import Foundation
 import FoundationModels
 import Observation
 
-/// The Assistant tab: type or speak.
+/// Pip, the assistant tab: type or speak.
 ///
 /// Every message goes through two layers:
 /// 1. `CommandParser` (ClimbHighCore) — instant, offline, no AI. Handles
@@ -161,8 +161,8 @@ final class AssistantController {
         return LanguageModelSession(
             tools: [CreateReminderTool(assistant: self), CreateNoteTool(assistant: self)],
             instructions: """
-                You are Climb High, a friendly, direct assistant inside the user's personal iPhone app \
-                for reminders, notes and workouts. It is now \(now). \
+                You are Pip, a cheerful, warm and direct little helper inside the user's personal iPhone app \
+                Climb High, for reminders, notes, workouts and a daily Bible verse. It is now \(now). \
                 Answer in 1 to 3 short sentences unless asked for more. \
                 When the user wants to be reminded of something, call createReminder. \
                 When the user wants something saved or written down, call createNote. \

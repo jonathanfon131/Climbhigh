@@ -5,22 +5,25 @@ import UserNotifications
 /// Everything to do with regular notifications (banners).
 ///
 /// iOS keeps at most 64 scheduled notifications per app, so the budget is split:
-/// up to `Budget.reminders` for reminders, the rest kept free for rest-timer buzzes.
+/// 42 reminders + 7 daily verses + up to 15 rest-timer buzzes = 64.
 @MainActor
 final class NotificationService {
     enum Budget {
-        static let reminders = 48
+        static let reminders = 42
+        static let verses = 7
     }
 
     enum Category {
         static let reminder = "REMINDER"
         static let rest = "REST"
+        static let verse = "VERSE"
     }
 
     enum Action {
         static let markDone = "MARK_DONE"
         static let snooze = "SNOOZE_10"
         static let startSet = "START_SET"
+        static let markVerseRead = "MARK_VERSE_READ"
     }
 
     /// Prefixes keep each kind of notification separate so replacing one kind
@@ -29,6 +32,7 @@ final class NotificationService {
         static let reminder = "reminder."
         static let snooze = "snooze."
         static let rest = "rest."
+        static let verse = "verse."
     }
 
     /// Keys stored in each notification's `userInfo`.
@@ -55,7 +59,12 @@ final class NotificationService {
             actions: [UNNotificationAction(identifier: Action.startSet, title: "Start set", options: [])],
             intentIdentifiers: []
         )
-        center.setNotificationCategories([reminder, rest])
+        let verse = UNNotificationCategory(
+            identifier: Category.verse,
+            actions: [UNNotificationAction(identifier: Action.markVerseRead, title: "I read it", options: [])],
+            intentIdentifiers: []
+        )
+        center.setNotificationCategories([reminder, rest, verse])
     }
 
     @discardableResult
@@ -130,6 +139,28 @@ final class NotificationService {
             InfoKey.occurrence: alert.occurrence.timeIntervalSince1970
         ]
         return content
+    }
+
+    // MARK: Daily verse
+
+    /// One morning notification per upcoming day, each showing that day's verse.
+    func replaceVerseReminders(_ items: [(fireDate: Date, verse: DailyVerse, streak: Int)], calendar: Calendar = .current) async {
+        await removePending(withPrefix: Prefix.verse)
+        for item in items.prefix(Budget.verses) {
+            let content = UNMutableNotificationContent()
+            content.title = "Verse of the day · \(item.verse.reference)"
+            content.body = item.verse.text
+            if item.streak > 0 {
+                content.subtitle = "Keep your \(item.streak)-day streak going"
+            }
+            content.sound = .default
+            content.categoryIdentifier = Category.verse
+            content.threadIdentifier = "verse"
+            let parts = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: item.fireDate)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: parts, repeats: false)
+            let id = Prefix.verse + DayStamp(item.fireDate, calendar: calendar).description
+            await add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
+        }
     }
 
     // MARK: Rest timer "buzz" mode

@@ -35,6 +35,7 @@ final class AppContainer {
     let settings: SettingsStore
     let reminders: ReminderStore
     let notes: NoteStore
+    let faith: FaithStore
     let workout: WorkoutController
     let assistant: AssistantController
     let backup: BackupService
@@ -49,16 +50,18 @@ final class AppContainer {
         let scheduler = ReminderAlertScheduler(notifications: notifications, alarms: alarms)
         reminders = ReminderStore(context: context, scheduler: scheduler, notifications: notifications)
         notes = NoteStore(context: context)
+        faith = FaithStore(context: context, settings: settings, notifications: notifications)
         workout = WorkoutController(context: context, settings: settings, alarms: alarms,
                                     notifications: notifications, haptics: haptics, focus: focus)
         assistant = AssistantController(reminders: reminders, notes: notes, workout: workout, settings: settings)
-        backup = BackupService(context: context, settings: settings)
+        backup = BackupService(context: context, settings: settings, faith: faith)
     }
 
     // MARK: App lifecycle
 
     func didLaunch() {
         notifications.registerCategories()
+        faith.refreshReminders()
     }
 
     func scenePhaseChanged(to phase: ScenePhase) {
@@ -66,6 +69,8 @@ final class AppContainer {
         switch phase {
         case .active:
             reminders.refreshAlerts()
+            faith.refreshDay()
+            faith.refreshReminders()
         case .background:
             scheduleBackgroundRefresh()
         default:
@@ -83,6 +88,7 @@ final class AppContainer {
 
     func refreshInBackground() async {
         await reminders.refreshAlertsAndWait()
+        faith.refreshReminders()
         scheduleBackgroundRefresh()
     }
 
@@ -107,6 +113,10 @@ final class AppContainer {
     func handleNotification(action: String, identifier: String, reminderID: UUID?, occurrence: Date?) {
         if identifier.hasPrefix(NotificationService.Prefix.rest) {
             workout.startNextSet()
+            return
+        }
+        if identifier.hasPrefix(NotificationService.Prefix.verse) {
+            if action == NotificationService.Action.markVerseRead { faith.markTodayRead() }
             return
         }
         guard let reminderID else { return }

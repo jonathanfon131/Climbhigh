@@ -95,7 +95,7 @@ final class NoteDiscussion {
             The note is titled "\(title)". Its content:
             \(content)
             """)
-        messages = [Message(fromUser: false, text: "What do you want to do with this note? Ask me anything about it — or tell me the goal and I'll suggest how to get there.")]
+        messages = [Message(fromUser: false, text: "Pip here! What do you want this note to do for you? Ask me anything about it — or tell me the goal and I'll map out how to get there.")]
     }
 
     func send(_ text: String) async {

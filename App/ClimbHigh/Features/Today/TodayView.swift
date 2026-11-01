@@ -16,6 +16,7 @@ struct TodayView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 BigTitle(text: "Climb\nhigh.", eyebrow: Date.now.formatted(.dateTime.weekday(.wide).month(.wide).day()))
+                VerseCard()
                 nextUp
                 workoutCard
                 latestNote
@@ -148,13 +149,10 @@ struct TodayView: View {
     private var assistantPrompt: some View {
         Button { selection = .assistant } label: {
             HStack(spacing: 14) {
-                Image(systemName: "mic.fill")
-                    .font(.title3.weight(.bold))
-                    .foregroundStyle(Palette.ink)
-                    .frame(width: 48, height: 48)
-                    .background(Palette.lilac, in: Circle())
+                PipView(mood: .idle, size: 36)
+                    .frame(width: 54, height: 54)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Ask or tell me anything")
+                    Text("Ask Pip anything")
                         .font(.headline)
                         .foregroundStyle(Palette.textPrimary)
                     Text("“Remind me to call Mom tomorrow at 5”")

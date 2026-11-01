@@ -29,6 +29,8 @@ struct NoteReviewSheet: View {
                     case .loading:
                         loading
                     case let .unavailable(message), let .failed(message):
+                        PipView(mood: .sleepy, size: 56)
+                            .frame(maxWidth: .infinity)
                         NoticeBanner(text: message, systemImage: "exclamationmark.triangle.fill", color: Palette.coral)
                         if case .failed = phase {
                             Button("Try again") { Task { await load() } }
@@ -41,7 +43,7 @@ struct NoteReviewSheet: View {
                 .padding(Metrics.screenPadding)
             }
             .screenBackground()
-            .navigationTitle("AI review")
+            .navigationTitle("Pip's review")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } }
@@ -53,8 +55,9 @@ struct NoteReviewSheet: View {
 
     private var loading: some View {
         VStack(spacing: 14) {
-            ProgressView().controlSize(.large)
-            Text("Reading your note…")
+            PipView(mood: .thinking, size: 72)
+                .frame(width: 108, height: 108)
+            Text("Pip is reading your note…")
                 .font(.headline)
             Text("Runs on your iPhone. Usually takes 5–20 seconds.")
                 .font(.subheadline)
@@ -67,7 +70,7 @@ struct NoteReviewSheet: View {
     @ViewBuilder
     private func reviewContent(_ review: NoteReview) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("MY TAKE")
+            Text("PIP'S TAKE")
                 .font(.caption.weight(.heavy))
                 .tracking(1.2)
             Text(review.opinion)

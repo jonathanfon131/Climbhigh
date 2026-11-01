@@ -14,14 +14,34 @@ public struct BackupDocument: Codable, Equatable, Sendable {
     public var reminders: [ReminderRecord]
     public var notes: [NoteRecord]
     public var workouts: [WorkoutRecord]
+    /// Days the daily verse was read ("2026-11-01"), for the streak.
+    public var verseDays: [String]
 
-    public init(exportedAt: Date, settings: AppSettings, reminders: [ReminderRecord], notes: [NoteRecord], workouts: [WorkoutRecord]) {
+    public init(exportedAt: Date, settings: AppSettings, reminders: [ReminderRecord], notes: [NoteRecord],
+                workouts: [WorkoutRecord], verseDays: [String] = []) {
         self.version = Self.currentVersion
         self.exportedAt = exportedAt
         self.settings = settings
         self.reminders = reminders
         self.notes = notes
         self.workouts = workouts
+        self.verseDays = verseDays.sorted()
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case version, exportedAt, settings, reminders, notes, workouts, verseDays
+    }
+
+    /// Fields added after 1.0 use `decodeIfPresent`, so older backups still import.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        version = try c.decode(Int.self, forKey: .version)
+        exportedAt = try c.decode(Date.self, forKey: .exportedAt)
+        settings = try c.decodeIfPresent(AppSettings.self, forKey: .settings) ?? AppSettings()
+        reminders = try c.decodeIfPresent([ReminderRecord].self, forKey: .reminders) ?? []
+        notes = try c.decodeIfPresent([NoteRecord].self, forKey: .notes) ?? []
+        workouts = try c.decodeIfPresent([WorkoutRecord].self, forKey: .workouts) ?? []
+        verseDays = try c.decodeIfPresent([String].self, forKey: .verseDays) ?? []
     }
 
     public enum BackupError: Error, Equatable, LocalizedError {

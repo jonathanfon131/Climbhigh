@@ -141,3 +141,16 @@ final class WorkoutSetEntry {
         LoggedSet(intensity: intensity, completedAt: completedAt, plannedRestSeconds: plannedRestSeconds, exercise: exercise, weight: weight, reps: reps)
     }
 }
+
+/// One day the daily verse was read. The streak is computed from these.
+@Model
+final class VerseRead {
+    /// "2026-11-01" — one row per day.
+    @Attribute(.unique) var day: String
+    var readAt: Date
+
+    init(day: String, readAt: Date = .now) {
+        self.day = day
+        self.readAt = readAt
+    }
+}

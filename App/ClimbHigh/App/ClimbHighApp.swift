@@ -13,6 +13,7 @@ struct ClimbHighApp: App {
                 .environment(container.settings)
                 .environment(container.reminders)
                 .environment(container.notes)
+                .environment(container.faith)
                 .environment(container.workout)
                 .environment(container.assistant)
                 .environment(container.speech)

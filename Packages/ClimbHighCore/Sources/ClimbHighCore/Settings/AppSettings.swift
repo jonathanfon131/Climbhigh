@@ -47,6 +47,10 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var focusOnShortcutName: String
     public var focusOffShortcutName: String
 
+    // Daily verse
+    public var verseReminderEnabled: Bool
+    public var verseReminderTime: TimeOfDay
+
     public init(
         restPresets: RestPresets = .evidenceBased,
         restAlertStyle: RestAlertStyle = .alarm,
@@ -58,7 +62,9 @@ public struct AppSettings: Codable, Equatable, Sendable {
         defaultRingsAlarm: Bool = true,
         focusAutomationEnabled: Bool = false,
         focusOnShortcutName: String = "Climb High Focus On",
-        focusOffShortcutName: String = "Climb High Focus Off"
+        focusOffShortcutName: String = "Climb High Focus Off",
+        verseReminderEnabled: Bool = true,
+        verseReminderTime: TimeOfDay = TimeOfDay(hour: 7)
     ) {
         self.restPresets = restPresets
         self.restAlertStyle = restAlertStyle
@@ -71,6 +77,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
         self.focusAutomationEnabled = focusAutomationEnabled
         self.focusOnShortcutName = focusOnShortcutName
         self.focusOffShortcutName = focusOffShortcutName
+        self.verseReminderEnabled = verseReminderEnabled
+        self.verseReminderTime = verseReminderTime
     }
 
     /// How many buzz notifications one rest schedules (iOS allows 64 pending in total).
@@ -82,6 +90,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         case restPresets, restAlertStyle, buzzEverySeconds, buzzForSeconds, vibrateInApp
         case defaultLeadTimes, defaultNudgeTimes, defaultRingsAlarm
         case focusAutomationEnabled, focusOnShortcutName, focusOffShortcutName
+        case verseReminderEnabled, verseReminderTime
     }
 
     public init(from decoder: Decoder) throws {
@@ -98,7 +107,9 @@ public struct AppSettings: Codable, Equatable, Sendable {
             defaultRingsAlarm: try c.decodeIfPresent(Bool.self, forKey: .defaultRingsAlarm) ?? defaults.defaultRingsAlarm,
             focusAutomationEnabled: try c.decodeIfPresent(Bool.self, forKey: .focusAutomationEnabled) ?? defaults.focusAutomationEnabled,
             focusOnShortcutName: try c.decodeIfPresent(String.self, forKey: .focusOnShortcutName) ?? defaults.focusOnShortcutName,
-            focusOffShortcutName: try c.decodeIfPresent(String.self, forKey: .focusOffShortcutName) ?? defaults.focusOffShortcutName
+            focusOffShortcutName: try c.decodeIfPresent(String.self, forKey: .focusOffShortcutName) ?? defaults.focusOffShortcutName,
+            verseReminderEnabled: try c.decodeIfPresent(Bool.self, forKey: .verseReminderEnabled) ?? defaults.verseReminderEnabled,
+            verseReminderTime: try c.decodeIfPresent(TimeOfDay.self, forKey: .verseReminderTime) ?? defaults.verseReminderTime
         )
     }
 }

@@ -1,13 +1,19 @@
 import SwiftUI
 
-/// One chat message. Yours are lime on the right; the assistant's are on the left.
+/// One chat message. Yours are lime on the right; Pip's are on the left with a little avatar.
 struct ChatBubble: View {
     let text: String
     let fromUser: Bool
 
     var body: some View {
-        HStack {
-            if fromUser { Spacer(minLength: 48) }
+        HStack(alignment: .bottom, spacing: 6) {
+            if fromUser {
+                Spacer(minLength: 48)
+            } else {
+                PipView(mood: .idle, size: 24, animated: false)
+                    .frame(width: 36, height: 36)
+                    .accessibilityHidden(true)
+            }
             Text(text)
                 .font(.body)
                 .foregroundStyle(fromUser ? Palette.ink : Palette.textPrimary)
@@ -22,36 +28,24 @@ struct ChatBubble: View {
             if !fromUser { Spacer(minLength: 48) }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(fromUser ? "You: \(text)" : "Assistant: \(text)")
+        .accessibilityLabel(fromUser ? "You: \(text)" : "Pip: \(text)")
     }
 }
 
-/// Three pulsing dots while the AI is thinking.
+/// Pip thinking, shown while the on-device AI works.
 struct TypingIndicator: View {
-    @State private var animate = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    var label = "Pip is thinking…"
 
     var body: some View {
-        HStack {
-            HStack(spacing: 6) {
-                ForEach(0..<3, id: \.self) { index in
-                    Circle()
-                        .fill(Palette.textSecondary)
-                        .frame(width: 8, height: 8)
-                        .opacity(animate ? 1 : 0.3)
-                        .animation(
-                            reduceMotion ? nil : .easeInOut(duration: 0.6).repeatForever().delay(Double(index) * 0.2),
-                            value: animate
-                        )
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(Palette.surface, in: Capsule())
+        HStack(spacing: 8) {
+            PipView(mood: .thinking, size: 30)
+                .frame(width: 48, height: 48)
+            Text(label)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Palette.textSecondary)
             Spacer()
         }
-        .onAppear { animate = true }
-        .accessibilityLabel("Thinking")
+        .accessibilityElement(children: .combine)
     }
 }
 
