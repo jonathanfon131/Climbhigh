@@ -26,7 +26,7 @@ jobs:
           set -o pipefail
           xcodebuild -project ClimbHigh.xcodeproj -scheme ClimbHigh -configuration Debug \
             -destination 'generic/platform=iOS Simulator' -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO build 2>&1 | tail -5
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | grep -E "error:|BUILD (SUCCEEDED|FAILED)"
 
       - name: Capture screens
         run: ./scripts/take-screenshots.sh build/Build/Products/Debug-iphonesimulator/ClimbHigh.app docs/screenshots

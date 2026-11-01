@@ -70,7 +70,7 @@ final class NotificationService {
     @discardableResult
     func requestAuthorization() async -> Bool {
         if DemoMode.isOn { return true }
-        (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+        return (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
     }
 
     func isAuthorized() async -> Bool {
