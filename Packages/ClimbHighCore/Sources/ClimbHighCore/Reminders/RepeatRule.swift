@@ -48,3 +48,28 @@ public struct RepeatRule: Codable, Hashable, Sendable {
 
     public static let shortWeekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 }
+
+extension RepeatRule {
+    /// One word for tight spaces: "Daily", "Weekly", "Every 2 wks", "Monthly"…
+    public var shortLabel: String {
+        guard isRepeating else { return "Once" }
+        if interval == 1 {
+            switch frequency {
+            case .never: return "Once"
+            case .daily: return "Daily"
+            case .weekly: return "Weekly"
+            case .monthly: return "Monthly"
+            case .yearly: return "Yearly"
+            }
+        }
+        let unit: String
+        switch frequency {
+        case .never: return "Once"
+        case .daily: unit = "days"
+        case .weekly: unit = "wks"
+        case .monthly: unit = "mos"
+        case .yearly: unit = "yrs"
+        }
+        return "Every \(interval) \(unit)"
+    }
+}

@@ -113,16 +113,19 @@ struct ReminderRow: View {
             }
             HStack(spacing: 6) {
                 if schedule.repeatRule.isRepeating {
-                    Chip(text: schedule.repeatRule.summary, systemImage: "repeat")
+                    Chip(text: schedule.repeatRule.shortLabel, systemImage: "repeat")
                 }
                 if schedule.ringsAlarm {
                     Chip(text: "Alarm", systemImage: "alarm.fill", color: Palette.volt, foreground: Palette.ink)
+                        .fixedSize()
                 }
                 if !schedule.leadTimes.isEmpty {
-                    Chip(text: "\(schedule.leadTimes.count) heads-up", systemImage: "bell")
+                    Chip(text: "\(schedule.leadTimes.count)", systemImage: "bell")
+                        .accessibilityLabel("\(schedule.leadTimes.count) heads-up")
                 }
                 if !schedule.dayOfNudges.isEmpty {
-                    Chip(text: "\(schedule.dayOfNudges.count)× on the day", systemImage: "arrow.clockwise")
+                    Chip(text: "\(schedule.dayOfNudges.count)×", systemImage: "arrow.clockwise")
+                        .accessibilityLabel("\(schedule.dayOfNudges.count) reminders on the day")
                 }
             }
             .lineLimit(1)

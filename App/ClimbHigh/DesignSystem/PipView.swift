@@ -28,7 +28,7 @@ struct PipView: View {
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion || !animated)) { context in
-            let t = (reduceMotion || !animated) ? 0 : context.date.timeIntervalSinceReferenceDate
+            let t = (reduceMotion || !animated) ? 1.0 : context.date.timeIntervalSinceReferenceDate
             ZStack {
                 if mood == .listening { listeningRings(t) }
                 character(t)
