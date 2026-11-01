@@ -62,7 +62,7 @@ private struct Step: View {
                 .foregroundStyle(Palette.ink)
                 .frame(width: 26, height: 26)
                 .background(Palette.volt, in: Circle())
-            Text(.init(text)) // renders the **bold** markdown
+            Text(LocalizedStringKey(text)) // renders the **bold** markdown
                 .fixedSize(horizontal: false, vertical: true)
         }
     }

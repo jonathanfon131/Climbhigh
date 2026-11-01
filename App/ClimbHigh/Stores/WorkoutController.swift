@@ -16,10 +16,14 @@ import SwiftData
 @MainActor
 @Observable
 final class WorkoutController {
+    /// Optional details typed in for the next set. Kept as text while editing.
     struct SetDetails: Equatable {
         var exercise = ""
-        var weight: Double?
-        var reps: Int?
+        var weightText = ""
+        var repsText = ""
+
+        var weight: Double? { Double(weightText.replacingOccurrences(of: ",", with: ".")) }
+        var reps: Int? { Int(repsText) }
     }
 
     private(set) var session: WorkoutSession?

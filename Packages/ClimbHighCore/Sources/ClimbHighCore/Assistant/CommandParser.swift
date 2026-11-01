@@ -122,7 +122,7 @@ extension CommandParser {
     }
 
     /// "to call Mom" → "Call Mom"
-    static func cleanTitle(_ raw: String) -> String {
+    public static func cleanTitle(_ raw: String) -> String {
         var title = raw.trimmingCharacters(in: CharacterSet.whitespaces.union(CharacterSet(charactersIn: ",:-")))
         for leading in ["to ", "about ", "that ", "for "] where title.lowercased().hasPrefix(leading) {
             title = String(title.dropFirst(leading.count))
@@ -132,7 +132,7 @@ extension CommandParser {
         return title.isEmpty ? "Reminder" : capitalizeFirst(title)
     }
 
-    static func capitalizeFirst(_ text: String) -> String {
+    public static func capitalizeFirst(_ text: String) -> String {
         guard let first = text.first else { return text }
         return first.uppercased() + text.dropFirst()
     }

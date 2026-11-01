@@ -100,7 +100,8 @@ struct WorkoutView: View {
             ForEach(SetIntensity.allCases) { intensity in
                 IntensityTile(intensity: intensity, seconds: settings.settings.restPresets.seconds(for: intensity)) {
                     workout.finishSet(intensity, details: showDetails ? details : .init())
-                    details.reps = nil
+                    details.repsText = ""
+
                 }
             }
             DisclosureGroup(isExpanded: $showDetails) {
@@ -223,11 +224,11 @@ private struct SetDetailsFields: View {
                 .padding(12)
                 .background(Palette.surfaceRaised, in: RoundedRectangle(cornerRadius: 14))
             HStack(spacing: 10) {
-                TextField("Weight", value: $details.weight, format: .number)
+                TextField("Weight", text: $details.weightText)
                     .keyboardType(.decimalPad)
                     .padding(12)
                     .background(Palette.surfaceRaised, in: RoundedRectangle(cornerRadius: 14))
-                TextField("Reps", value: $details.reps, format: .number)
+                TextField("Reps", text: $details.repsText)
                     .keyboardType(.numberPad)
                     .padding(12)
                     .background(Palette.surfaceRaised, in: RoundedRectangle(cornerRadius: 14))

@@ -24,7 +24,7 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Use the newest stable Xcode 26
         run: ./scripts/select-xcode.sh
@@ -37,7 +37,7 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Use the newest stable Xcode 26
         run: ./scripts/select-xcode.sh
@@ -59,6 +59,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
+            OTHER_SWIFT_FLAGS='$(inherited) -continue-building-after-errors' \
             build 2>&1 | tee build.log | grep -E "error:|warning: .*ClimbHigh|BUILD (SUCCEEDED|FAILED)" || true
           grep -q "BUILD SUCCEEDED" build.log
 

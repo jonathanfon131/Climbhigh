@@ -96,9 +96,9 @@ struct PillButtonStyle: ButtonStyle {
     private var foreground: Color {
         if let textColor { return textColor }
         switch kind {
-        case .primary: Palette.ink
-        case .secondary: Palette.textPrimary
-        case .destructive: Palette.ink
+        case .primary: return Palette.ink
+        case .secondary: return Palette.textPrimary
+        case .destructive: return Palette.ink
         }
     }
 
